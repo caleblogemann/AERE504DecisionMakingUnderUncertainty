@@ -1,0 +1,173 @@
+\documentclass[10pt, oneside]{article}
+\usepackage[letterpaper, margin=2cm]{geometry}
+\usepackage{Logemann}
+\usepackage{SetTheory}
+\usepackage{Sum}
+\usepackage{Product}
+\usepackage{multicol}
+
+\begin{document}
+Formula Sheet
+  \begin{enumerate}
+    \item Probability
+      \begin{multicols}{3}
+      \begin{itemize}
+        \item Conditional Probability
+          \begin{gather*}
+            P(A|B) = \frac{P(A, B)}{P(B)} \\
+            P(A,B) = P(A|B)P(B)
+          \end{gather*}
+
+        \item Law of total probability
+          \begin{gather*}
+            P(A) = \sum{B \in \mcB}{}{P(A, B)} \\
+            P(A) = \sum{B \in \mcB}{}{P(A|B)P(B)} \\
+            P(A|C) = \sum{B \in \mcB}{}{P(A|B,C)P(B|C)}
+          \end{gather*}
+
+        \item Bayes' Rule
+          \begin{gather*}
+            P(A|B) = \frac{P(B|A)P(A)}{P(B)}
+          \end{gather*}
+      \end{itemize}
+      \end{multicols}
+
+    \item Probabilistic Representation
+      \begin{itemize}
+        \item Chain Rule for Bayesian Networks
+          \begin{gather*}
+            P(x_1, x_2, \ldots, x_n) = \prod{i = 1}{n}{P\p{x_i| \text{ Parents of }x_i}}
+          \end{gather*}
+
+        \item Independence and Conditional Independence
+          \begin{gather*}
+            A \perp B \Leftrightarrow P(A, B) = P(A)P(B) \text{ or } P(A) = P(A|B) \\
+            (A \perp B) | C \Leftrightarrow P(A, B| C) = P(A|C) P(B|C) \text{ or } P(A | C) = P(A| B, C)
+          \end{gather*}
+
+        \item Conditional Independence in Bayesian Networks \\
+          $(A \perp B | \mcC)$ or $\mcC$ d-separates $A$ and $B$ if for all
+          paths from $A$ to $B$, one of the following is true
+          \begin{enumerate}
+            \item The path contains a chain $X \to Y \to Z$ for $Y \in \mcC$.
+            \item The path contains a fork $X \gets Y \to Z$, for $Y \in \mcC$.
+            \item The path contains an inverted fork or v-structure
+              $X \to Y \gets Z$, for $Y \notin \mcC$ and the children/descendents
+              of $Y$ not in $\mcC$.
+          \end{enumerate}
+      \end{itemize}
+
+    \item Inference
+      \begin{itemize}
+        \item Exact Inference \\
+          Use Law of total probability and sum out hidden variables.
+          Also need to use chain rule.
+          Can eliminate one variable at a time using tables.
+
+        \item Approximate Inference
+          \begin{itemize}
+            \item Topological Sort - Ordered list of nodes such that parents
+              come before children.
+
+            \item Direct Sampling \\
+              Sample in order of topological sort, and estimate probability.
+              \[
+                P(c|o_{1:n}) = \frac{\text{Number of times $c$ and $o_{1:n}$ is observed in sample}}{\text{Number of times $o_{1:n}$ is observed}}
+              \]
+
+            \item Likelihood Weighted Sampling \\
+              Sample in order of topological sort, enforce given conditions but
+              assign weight from known conditional distribution.
+              For $x_i$ given/observed
+              \[
+                w = w \times P(x_i | \text{parents of } x_i)
+              \]
+              \[
+                P(c|o_{1:n} = \frac{\text{Sum of weights were $c$ observed}}{\text{Sum of weights}}
+              \]
+
+            \item Gibbs Sampling \\
+              Take random initial sample, with given/observed variables.
+              Iteratively update variables in order using probability given all
+              other current sample. Update all unknown variables with
+              probability $P(X_i | x'_{1:n/i})$.
+
+          \end{itemize}
+      \end{itemize}
+
+    \item Parameter Learning
+      \begin{itemize}
+        \item Maximum Likelihood
+          \begin{itemize}
+            \item Binary Discrete Variable - C
+              \[
+                P(C = 1) \approx \hat{\theta} = \frac{m}{n} = \frac{\text{number of observations of 1}}{\text{total observations}}
+              \]
+
+            \item Discrete variable with $k$ options
+              \[
+                P(C = i) \approx \hat{\theta_i} = \frac{m_i}{\sum{j = 1}{k}{m_j}} = \frac{\text{number of observations of i}}{\text{total observations}}
+              \]
+
+            \item Continuous variable - Normal Distribution
+              \begin{gather*}
+                \hat{\mu} = \frac{\sum{i}{}{v_i}}{n} \\
+                \hat{\sigma}^2 = \frac{\sum{i}{}{\p{v_i - \hat{mu}}^2}}{n}
+              \end{gather*}
+          \end{itemize}
+
+        \item Bayesian Parameter Learning
+          \begin{itemize}
+            \item Binary Discrete Variable, uniform prior $\alpha = \beta = 1$
+              \[
+                p(\theta | o_i) = \text{Beta}(\alpha + m, \beta + n - m)
+              \]
+
+            \item Discrete Variable with $k$ options
+              \[
+                p(\theta_{1:n} | \alpha_{1:n}, m_{1:n}) = \text{Dir}\p{\theta_{1:n} | \alpha_1 m_1, \ldots, \alpha_n + m_n}
+              \]
+
+          \end{itemize}
+      \end{itemize}
+
+    \item Structure Learning
+      \begin{itemize}
+        \item Bayesian Score
+          \[
+            m_{ijk} = \p{\# X_i = k | \pi_{ij}} \qquad \alpha_{ij0} = \sum{k = 1}{r_i}{\alpha_{ijk}} \qquad m_{ij0} = \sum{k = 1}{r_i}{m_{ijk}}
+          \]
+          \[
+            \ln{P(G|D)} = \ln{P(G)} + \sum*{i = 1}{n}{\sum{j = 1}{q_i}{\ln{\frac{\Gamma(\alpha_{ij0})}{\Gamma(\alpha_{ij0} + m_{ij0}}} 
+              + \sum*{k = 1}{r_i}{\ln{\frac{\Gamma(\alpha_{ijk} + m_{ijk})}{\Gamma(\alpha_{ijk}}}}}}
+          \]
+
+        \item Graph Searches
+          \begin{itemize}
+              \item K2 search - Greedily add parents to nodes to maximize score
+              \item Local Search - Search through local neighbors for max score
+              \item Genetic Algorithm
+              \item Memetic Algorithm - Genetic Algorithm with local search
+          \end{itemize}
+
+        \item Markov equivalence Classes \\
+          Two graphs are Markov equivalent if they have the same edges without
+          regard to direction and the same v-structures.
+          A Bayesian score is Markov equivalent is one were
+          $\sum{j}{}{\sum{k}{}{\alpha_{ijk}}}$ is constant.
+
+        \item Partially directed graph search \\
+          A partially directed graph can encode a Markov Equivalence Class.
+          The local operations on a partially directed graph are
+          \begin{itemize}
+            \item If an edge between $A$ and $B$ doesn't exist, add either $A-B$ or $A\to B$.
+            \item If $A-B$ $A\to B$, then remove the edge.
+            \item If $A\to B$, then reverse direction $A\gets B$.
+            \item If $A-B-C$, then add $A \to B \gets C$.
+          \end{itemize}
+      \end{itemize}
+
+
+  \end{enumerate}
+\end{document}
+

@@ -1,0 +1,54 @@
+\documentclass[11pt, oneside]{article}
+\usepackage[letterpaper, margin=2cm]{geometry}
+\usepackage{Logemann}
+
+\begin{document}
+  \begin{enumerate}
+    \item[\#1]
+      When considering $P(A, B) = P(A | B)P(B)$, first consider if $B$ is true, this happens
+      with probability $P(B)$.
+      If we already know $B$, then the probability of $A$ is $P(A|B)$.
+      Now both those together $A$ and $B$ give the product $P(A|B)P(B)$.
+
+      Similarly for $P(A, B|C)$, first consider what the probability of $B$
+      occurring is given $C$, that is $P(B|C)$.
+      Now with both $B$ and $C$ known the probability of $A$ is $P(A|B,C)$.
+      Thus the probability of both $A$ and $B$ given $C$ is $P(A|B,C)P(B|C)$.
+
+    \item[\#2]
+
+    \item[\#12]
+      What are the differences between inference, parameter learning, and
+      structure learning?
+      What are you looking for in each case and what is assumed to be known?
+      When might you use each of them?
+
+      In inference you know both the structure of the Bayesian network and the
+      conditional probability parameters of the network.
+      You are trying to find some other probability not directly given to you
+      by the network.
+      You can either use exact inference and computing with the conditional
+      probabilities to find the probability that you are looking for, or you
+      can randomly sample the known network and estimate the probability.
+
+      In parameter learning, you know the structure of the network but you
+      do not know the conditional probabilities.
+      In this case you try and use real world data to learn the paramters that
+      define the conditional probabilities.
+      You can do this using a Maximum likelihood approach which gives you a
+      single value for each parameter, or you can use a Bayesian approach which
+      gives you a confidence in you parameters as well.
+
+      In structure learning you only have the data are trying to learning the
+      conditional independence relationships of the variables.
+      This can be done by picking a graph scoring function and searching the
+      space of directed acyclic graphs for the best score.
+
+      If you are given a set of data, you might first apply structure learning and
+      then parameter learning to create a Bayesian network that can be associated with
+      the data.
+      Then it is possible to use the Bayesian network to find other previously
+      unknown quantities of interest using inference.
+  \end{enumerate}
+\end{document}
+
