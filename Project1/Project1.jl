@@ -106,6 +106,35 @@ function BayesianScore(graph, df, r)
     return bs;
 end
 
+function local_search(scoring_function, graph_0)
+    g = graph_0;
+    max_score = scoring_function(g);
+    g_max_score = g;
+    has_updated = true;
+    while (has_updated)
+        has_updated = false;
+        for i = 1:nVariables
+            for j = i:nVariables
+                if (has_edge)
+                    # try removing edge
+                    # try switching edge direction
+                else
+                    # try adding edge i \to j
+                    # try adding edge j \to i
+                end
+                fg = scoring_function(g);
+                if(fg > max_score)
+                    has_updated = true;
+                    max_score = fg;
+                    g_max_score = g;
+                end
+            end
+        end
+
+
+    end
+end
+
 
 
 
