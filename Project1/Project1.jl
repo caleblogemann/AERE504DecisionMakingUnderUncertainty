@@ -1,140 +1,61 @@
-using CSV, DataFrame, Distributions, BayesNets
+using CSV, DataFrames, Distributions, BayesNets, SpecialFunctions, LightGraphs
+using TikzGraphs, TikzPictures, Printf
+
+include("BayesianNetworks.jl")
+
+function compute_r(dt, nVariables)
+    r = zeros(Int64, nVariables);
+    for i in 1:nVariables
+        r[i] = maximum(dt[:,i]) - minimum(dt[:,i]) + 1;
+    end
+    return r;
+end
+
+function save_graph(g, filename, variables)
+    filename = filename*".pdf"
+    t = plot(g, map(string, variables));
+    save(PDF(filename), t);
+end
+
+function save_graph_file(g, filename, variables)
+    filename = filename*".gph"
+    file = open(filename, "w")
+
+    for edge in LightGraphs.edges(g)
+        @printf(file,"%s,%s\n",variables[LightGraphs.src(edge)], variables[LightGraphs.dst(edge)])
+    end
+
+    close(file)
+end
 
 titanicData = CSV.read("titanic.csv");
-df = titanicData;
-nDataPoints = size(titanicData, 1);
-nVariables = size(titanicData, 2);
+whitewineData = CSV.read("whitewine.csv");
+schoolgradesData = CSV.read("schoolgrades.csv");
 
-r = zeros(Int64, nVariables);
+#=dt = convert(Array, titanicData);=#
+#nDataPoints = size(titanicData, 1);
+#=nVariables = size(titanicData, 2);=#
 
-for i in 1:nVariables
-    r[i] = maximum(df[:,i]) - minimum(df[:,i]) + 1;
+#=r = compute_r(dt, nVariables);=#
+#=(g, max_score) = k2search(g->BayesianScore(g, dt, r), 1:nVariables, nVariables);=#
+#=save_graph(g, "titanicGraph.pdf", names(titanicData));=#
+#=println(max_score);=#
+
+dfArray = [titanicData, whitewineData, schoolgradesData];
+#=nRestartsArray = [100, 100, 100];=#
+filenames = ["titanic", "whitewine", "schoolgrades"]
+
+for i = 1:3
+    df = dfArray[i];
+    #=nRestarts = nRestartsArray[i];=#
+    dt = convert(Array, df);
+    nVariables = size(dt, 2);
+    r = compute_r(dt, nVariables);
+    (g, max_score) = full_search(g->BayesianScore2(g, df), nVariables);
+    println(filenames[i]);
+    println(max_score);
+    save_graph(g, filenames[i], names(df));
+    save_graph_file(g, filenames[i], names(df));
 end
-
-function get_idx(multi_idx, index_lengths)
-    n_indices = size(multi_idx,1);
-    idx = (multi_idx[1] - 1);
-    for i = 2:n_indices
-        idx = idx*index_lengths[i] + multi_idx[i] - 1
-    end
-    idx = idx + 1;
-    return idx
-end
-
-function get_multi_idx(idx, index_lengths)
-    n_indices = size(index_lengths, 1);
-    idx = idx - 1;
-    multi_idx = zeros(Int64, n_indices);
-    for i = n_indices:-1:1
-        n = mod(idx, index_lengths[i]) + 1;
-        multi_idx(i) = n;
-        idx = (idx - (n - 1))/index_length[i];
-    end
-end
-
-# Use uniform graph priors
-# Two possible parental distribution priors
-# uniform alpha_{ijk} = 1
-# BDeu alpha_{ijk} = 1/(q_i r_i)
-function BayesianScore(graph, df, r)
-    nVariables = size(r,1);
-    nRows = size(df,1);
-    # compute q
-    q = ones(Int64, nVariables);
-    # compute pi
-    nParents = zeros(Int64, nVariables);
-    parents = Dict();
-    # compute pi
-    pi_array = Dict();
-    j_array = Dict();
-    for i in 1:nVariables
-        parents[i] = inneighbors(graph, i);
-        nParents[i] = size(parents[i],1);
-        for k = 1:nParents[i]
-            q[i] = q[i]*r[parents[i][k]];
-        end
-
-        for j = 1:q[i]
-            pi_array[i,j] = get_multi_idx(j, r[parents[i]]);
-            j_array[i, pi_array[i,j]] = j;
-        end
-    end
-
-    m = zeros(Int64, nVariables, maximum(q), maximum(r))
-    # compute m
-    for i = 1:nVariables
-        for row = 1:nRows
-            multi_idx = df[row, parents[i]];
-            j = j_array[i, multi_idx];
-            k = df[row, i];
-            m[i, j, k] = m[i, j, k] + 1;
-        end
-    end
-
-    # compute m0
-    m0 = zeros(Int64, nVariables, maximum(q));
-    for i = 1:nVariables
-        for j = 1:q[i]
-            m0[i, j] = sum(m[i, j, :]);
-        end
-    end
-
-    # compute alpha
-    alpha = zeros(Float64, nVariables, maximum(q), maximum(r));
-    chi = 1.0;
-    # compute alpha0
-    alpha0 = zeros(Float64, nVariables, maximum(q));
-    for i = 1:nVariables
-        for j = 1:q[i]
-            for k = 1:r[i]
-                alpha[i, j, k] = chi/(q[i]*r[i]);
-            end
-            alpha0[i,j] = sum(alpha[i, j, :])
-        end
-    end
-
-    # compute Bayesian Score
-    bs = 0.0;
-    for i = 1:nVariables
-        for j = 1:q[i]
-            bs = bs + lgamma(alpha0[i,j]) - lgamma(alpha0[i,j] + m0[i,j]);
-            for k = 1:r[i]
-                bs = bs + lgamma(alpha[i, j, k] + m[i, j, k]) - lgamma(alpha[i, j, k]);
-            end
-        end
-    end
-    return bs;
-end
-
-function local_search(scoring_function, graph_0)
-    g = graph_0;
-    max_score = scoring_function(g);
-    g_max_score = g;
-    has_updated = true;
-    while (has_updated)
-        has_updated = false;
-        for i = 1:nVariables
-            for j = i:nVariables
-                if (has_edge)
-                    # try removing edge
-                    # try switching edge direction
-                else
-                    # try adding edge i \to j
-                    # try adding edge j \to i
-                end
-                fg = scoring_function(g);
-                if(fg > max_score)
-                    has_updated = true;
-                    max_score = fg;
-                    g_max_score = g;
-                end
-            end
-        end
-
-
-    end
-end
-
-
 
 
