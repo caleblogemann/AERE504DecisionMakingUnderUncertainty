@@ -135,7 +135,7 @@ function full_search(scoring_function, nRestarts, nVariables)
         # randomly shuffle variable order, give different results in k2 search
         variables = shuffle(1:nVariables)
         #println(variables);
-        max_parents = convert(Int64, floor(n/(nRestarts/7) + 1))
+        max_parents = convert(Int64, floor(n/(nRestarts/10) + 1))
         #max_parents = min(10, nVariables);
         #println(max_parents)
         #max_parents = 5;

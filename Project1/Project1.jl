@@ -31,11 +31,11 @@ end
 titanicData = CSV.read("titanic.csv");
 whitewineData = CSV.read("whitewine.csv");
 schoolgradesData = CSV.read("schoolgrades.csv");
-structuredlearningData = CSV.read("structuredlearning_test.csv");
+structuredlearningData = CSV.read("structurelearning_test.csv");
 
 dfArray = [titanicData, whitewineData, schoolgradesData, structuredlearningData];
-nRestartsArray = [1000, 500, 100, 1000];
-filenames = ["titanic", "whitewine", "schoolgrades", "structuredlearning_test"]
+nRestartsArray = [1000, 1000, 500, 1000];
+filenames = ["titanic", "whitewine", "schoolgrades", "structurelearning_test"]
 
 for i = 1:4
     df = dfArray[i];

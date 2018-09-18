@@ -29,27 +29,54 @@ Project 1
   I am at a local maximum.
   I also used a randomized restarting process to more fully search the space
   and to make sure the algorithm didn't get stuck at a poor local maximum.
+
+  Overall this could be viewed in two different perspectives, the first is that
+  I am running a randomized restart of the local search algorithm, where the k2
+  algorithm is generating the random initial structure.
+  The second perspective is that I am running a randomized restart on the k2
+  algorithm and then post processing with the local search to further optimize
+  the solution.
+  I think the second perspective may be more appropriate as I believe the k2
+  algorithm to be doing most of the optimizing.
 \section{Graphs and Scores}
   \begin{center}
     \includegraphics[scale=0.8]{titanic.pdf}
   \end{center}
-  The Bayesian Score for this structure is .
-  It took XXXXX seconds to compute a 1000 random restarts.
+  The Bayesian Score for this structure is -3794.8556
+  It took 58.37 seconds to compute a 1000 random restarts.
+  Some interesting interpretations can be seen in this graph structed.
+  For example if a passenger survived depending mostly on the sex of the
+  passenger and class of the passenger.
+  Also a passenger's class, fare, and age are related as well as the number
+  of siblings and the number of parents children.
   \begin{center}
     \includegraphics[scale=0.8]{whitewine.pdf}
   \end{center}
-  The Bayesian Score for this structure is .
-  It took XXXXX seconds to compute a 500 random restarts.
+  The Bayesian Score for this structure is -41958.9109.
+  It took 968.50 seconds to compute a 1000 random restarts.
+  Interpreting this graph, we see that the quality of the wine mainly depends
+  on the alcohol and the volatile acidity of the wine.
+  The density of the wine is related to the sugars, alcohol, citric acid,
+  sulphates, and totalsulfurdioxide.
+  There are also several other relationships between closely related aspects of
+  the wine.
   \begin{center}
-    \includegraphics[scale=0.4]{schoolgrades.pdf}
+    \includegraphics[scale=0.35]{schoolgrades.pdf}
   \end{center}
-  The Bayesian Score for this structure is .
-  It took XXXXX seconds to compute a 100 random restarts.
-  %\begin{center}
-    %\includegraphics[scale=0.5]{structuredlearning_test.pdf}
-  %\end{center}
-  The Bayesian Score for this structure is .
-  It took XXXXX seconds to compute a 1000 random restarts.
+  The Bayesian Score for this structure is -43302.7933.
+  It took 8474.55 seconds to compute 500 random restarts.
+  Interpreting this graph is rather difficult, and the relationships between
+  different variables is convoluted.
+  One key relationship is that between minority status and socio-economic status.
+  Also currmeet, classsiz, and grpsizcen all seem important as they have a lot of
+  parents and a lot of children.
+  \begin{center}
+    \includegraphics[scale=0.5]{structurelearning_test.pdf}
+  \end{center}
+  The Bayesian Score for this structure is -2211.0642.
+  It took 11.59 seconds to compute a 1000 random restarts.
+  The main interpretation of this graph would be that all other variables are
+  connected with variable C.
 
   \lstinputlisting[breaklines=true]{Project1.jl}
   \lstinputlisting[breaklines=true]{BayesianNetworks.jl}
