@@ -31,27 +31,19 @@ end
 titanicData = CSV.read("titanic.csv");
 whitewineData = CSV.read("whitewine.csv");
 schoolgradesData = CSV.read("schoolgrades.csv");
+structuredlearningData = CSV.read("structuredlearning_test.csv");
 
-#=dt = convert(Array, titanicData);=#
-#nDataPoints = size(titanicData, 1);
-#=nVariables = size(titanicData, 2);=#
+dfArray = [titanicData, whitewineData, schoolgradesData, structuredlearningData];
+nRestartsArray = [1000, 500, 100, 1000];
+filenames = ["titanic", "whitewine", "schoolgrades", "structuredlearning_test"]
 
-#=r = compute_r(dt, nVariables);=#
-#=(g, max_score) = k2search(g->BayesianScore(g, dt, r), 1:nVariables, nVariables);=#
-#=save_graph(g, "titanicGraph.pdf", names(titanicData));=#
-#=println(max_score);=#
-
-dfArray = [titanicData, whitewineData, schoolgradesData];
-#=nRestartsArray = [100, 100, 100];=#
-filenames = ["titanic", "whitewine", "schoolgrades"]
-
-for i = 1:3
+for i = 1:4
     df = dfArray[i];
-    #=nRestarts = nRestartsArray[i];=#
+    nRestarts = nRestartsArray[i];
     dt = convert(Array, df);
     nVariables = size(dt, 2);
     r = compute_r(dt, nVariables);
-    (g, max_score) = full_search(g->BayesianScore2(g, df), nVariables);
+    @time (g, max_score) = full_search(g->BayesianScore(g, df), nRestarts, nVariables);
     println(filenames[i]);
     println(max_score);
     save_graph(g, filenames[i], names(df));
