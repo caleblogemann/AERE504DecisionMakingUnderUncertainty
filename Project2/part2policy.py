@@ -30,13 +30,13 @@ def reward(state):
         d = distanceToGoal(state)
         r = 1 - d/max_d
     else:
-        r = 0
+        r = -1
     return r
 
 def tree_search(state, action, depth):
     next_state = getNextState(state, action)
     r = reward(next_state)
-    if (depth == 0 or r == -10):
+    if (depth == 0 or ~isStateValid(next_state)):
         return r
     else:
         rp2 = tree_search(next_state, 2, depth-1)
@@ -45,10 +45,11 @@ def tree_search(state, action, depth):
         return 0.5*r + 0.5*(rp2 + r0 + rm2)/3
 
 def policy(current_state):
-    tree_depth = 5
+    tree_depth = 6
     rp2 = tree_search(current_state, 2, tree_depth)
     r0 = tree_search(current_state, 0, tree_depth)
     rm2 = tree_search(current_state, -2, tree_depth)
+    # print([rp2, r0, rm2])
     if(rp2 >= r0 and rp2 >= rm2):
         return 2
     elif (r0 >= rm2 and r0 >= rp2):
