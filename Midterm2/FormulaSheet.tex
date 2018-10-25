@@ -1,0 +1,67 @@
+\documentclass[10pt, oneside]{article}
+\usepackage[letterpaper, margin=2cm]{geometry}
+\usepackage{Logemann}
+\usepackage{SetTheory}
+\usepackage{Sum}
+\usepackage{Product}
+\usepackage{multicol}
+
+\begin{document}
+\begin{multicols}{2}
+3 Decision Problems
+3.1 Utility Theory and 3.2 Decision Networks
+  \begin{align*}
+    & EU(a|o) = \sum{s'}{}{P(s'| a, o)U(s')} \\
+    & EU^*(o) = \max[a]{EU(a|o)} \\
+    & VOI(O'|o) = \p{\sum{o'}{}{P(o' | o)EU^*(o,o')}} - EU^*(o)
+  \end{align*}
+3.3 Games
+  \begin{align*}
+    & U\p{\br{a_1 : p_1; \cdots; a_n : pn}} = \sum{i = 1}{n}{p_i U(a_i)}
+  \end{align*}
+  Dominant Strategy - strategy that is best response to all possible opposing
+  strategies $s_{-i}$. \\
+  Dominant Strategy Equilibrium - All agents have a dominant strategy. \\
+  Nash Equilibrium - No agent can benefit by switching strategies when all other
+  agents keep their strategy. \\
+  Logit level k strategy \\
+  level 0 choose uniformly  \\
+  level k assume other agent acting at level k-1 and choose based on logit
+  distribution \\
+  \begin{align*}
+    & P(a_i) = e^{\lambda U_i(a_i, s_{-i})}
+  \end{align*}
+4 Sequential Problems \\
+4.1 Formulation MDP
+  \begin{align*}
+    & U = \sum{t = 0}{n-1}{r_t} \\
+    & U = \sum{t = 0}{\infty}{ \gamma^t r_t} \\
+    & U = \lim[n \to \infty]{\frac{1}{n}\sum{t = 0}{n}{r_t}}
+  \end{align*}
+4.2 Dynamic Programming \\
+  Policy Evaluation
+  \begin{align*}
+    & U_t^{\pi}(s) = R(s, \pi(s)) + \gamma \sum{s'}{}{T(s'|s, \pi(s))U_{t-1}^{\pi}(s')} \\
+  \end{align*}
+  Policy Iteration
+  \begin{align*}
+    &\pi_{k+1}(s) = \argmax[a]{R(s,a) + \gamma \sum{s'}{}{T(s'|s, a)U^{\pi_k}(s')}}
+  \end{align*}
+  Value Iteration
+  \begin{align*}
+    & U_{k+1}(s) = \max[a]{R(s, a) + \gamma \sum{s'}{}{T(s'|s, a)U_k(s')}} \\
+    & \pi(s) = \argmax[a]{R(s, a) + \gamma \sum{s'}{}{T(s'|s, a)U^*(s')}} \\
+    & U(s) = \max[a]{R(s, a) + \gamma \sum{s'}{}{T(s'|s, a)U(s')}}
+  \end{align*}
+  Closed and Open - Loop Planning
+
+4.3.1 Factored MDP
+4.5 Approximate Dynamic Programming
+4.6 Online Methods
+5.1
+5.2
+5.3
+5.4
+\end{multicols}
+\end{document}
+
