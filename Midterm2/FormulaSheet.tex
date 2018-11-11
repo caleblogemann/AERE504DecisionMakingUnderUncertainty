@@ -2,13 +2,14 @@
 \usepackage[letterpaper, margin=2cm]{geometry}
 \usepackage{Logemann}
 \usepackage{SetTheory}
+\usepackage{Integral}
 \usepackage{Sum}
 \usepackage{Product}
 \usepackage{multicol}
 
 \begin{document}
 \begin{multicols}{2}
-3 Decision Problems
+\noindent 3 Decision Problems \\
 3.1 Utility Theory and 3.2 Decision Networks
   \begin{align*}
     & EU(a|o) = \sum{s'}{}{P(s'| a, o)U(s')} \\
@@ -51,17 +52,78 @@
   \begin{align*}
     & U_{k+1}(s) = \max[a]{R(s, a) + \gamma \sum{s'}{}{T(s'|s, a)U_k(s')}} \\
     & \pi(s) = \argmax[a]{R(s, a) + \gamma \sum{s'}{}{T(s'|s, a)U^*(s')}} \\
+    & \text{Bellman Equation} \\
     & U(s) = \max[a]{R(s, a) + \gamma \sum{s'}{}{T(s'|s, a)U(s')}}
   \end{align*}
-  Closed and Open - Loop Planning
-
-4.3.1 Factored MDP
-4.5 Approximate Dynamic Programming
-4.6 Online Methods
-5.1
-5.2
-5.3
-5.4
+  Closed and Open - Loop Planning \\
+  Closed Loop accounts for future actions \\
+  Open Loop uses expected utility only \\
+4.3.1 Factored MDP \\
+4.5 Approximate Dynamic Programming \\
+  4.5.1 Local Approximation
+  \begin{align*}
+    & U(s) = \sum{i = 1}{n}{\lambda_i \beta_i(s)} \\
+    & \lambda_i = U(s_i) \\
+    & \beta_i(s) \approx d(s, s_i)
+  \end{align*}
+  4.5.2 Global Approximation
+  \begin{align*}
+    & U(s) = \sum{i = 1}{m}{\lambda_i \beta_i(s)} \\
+    & \lambda_i \beta_i \text{ from linear regression}
+  \end{align*}
+4.6 Online Methods \\
+  Forward Search \\
+  Branch and Bound Search \\
+  \begin{align*}
+    &\underline{U}(s) = \text{Lower Bound} \\
+    &\overline{U}(s, a) = \text{Upper Bound}
+  \end{align*}
+  Sparse Sampling \\
+  Sample using generative model instead of $T$ and $R$. \\
+  Monte Carlo Tree Search \\
+5 Model Uncertainty \\
+5.1 Exploration and Exploitation \\
+  \begin{align*}
+    & \rho_i = P(win_i|w_i, l_i) \\
+  \end{align*}
+  $\varepsilon$-greedy, choose random with probability $\varepsilon$ otherwise
+  greedy. \\
+  Softmax choose action with logit-model, probability $e^{\lambda \rho_i}$.
+5.2 Maximum Liklihood Model-Based Methods \\
+  \begin{align*}
+    & N(s, a, s') = \text{Counts} \\
+    & \rho(s, a) = \sum{}{}{r(s, a)} \\
+    & N(s, a) = \sum{s'}{}{N(s, a, s')} \\
+    & T(s'|s, a) = \frac{N(s, a, s')}{N(s, a)} \\
+    & R(s, a) = \frac{\rho(s, a)}{N(s, a)}
+  \end{align*}
+  5.2.1 Randomized Updates - Dyna
+  \begin{align*}
+    Q(s, a) = R(s, a) + \gamma \sum{s'}{}{T(s'|s, a)\max[a']{Q(s',a')}}
+  \end{align*}
+  5.2.2 Prioritized Updates
+5.3 Bayesian Model-Based Methods \\
+  \begin{align*}
+    & b_0(\theta) = \prod{s}{}{\prod{a}{}{Dir(\theta_{(s, a)} | \alpha_{(s, a)})}} \\
+    & b_t(\theta) = \prod{s}{}{\prod{a}{}{Dir(\theta_{(s, a)} | \alpha_{(s, a)} + m_{(s, a)})}} \\
+    & T(s', b'| s, b, a) = \delta_{\tau(s, b, a, s')}(b') P(s'|s, b, a) \\
+    & P(s'|s, b, a) = \dintt{\theta}{}{b(\theta)P(s'|s, \theta, a)}{\theta}
+  \end{align*}
+5.4 Model-Free Methods \\
+  5.4.1 Incremental Estimation \\
+  \begin{align*}
+    & \hat{x}_n = \hat{x}_{n-1} + \frac{1}{n}\p{x_n - \hat{x}_{n-1}} \\
+    & \hat{x} = \hat{x} + \alpha\p{x - \hat{x}}
+  \end{align*}
+  5.4.2 Q-Learning \\
+  \begin{align*}
+    & Q(s, a) = Q(s, a) + \alpha(r + \gamma \max[a']{Q(s', a')} - Q(s, a))
+  \end{align*}
+  5.4.3 SARSA \\
+  \begin{align*}
+    & Q(s_t, a_t) = Q(s_t, a_t) + \alpha(r_t + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t))
+  \end{align*}
+  5.4.4 Eligibility Traces \\
 \end{multicols}
 \end{document}
 
