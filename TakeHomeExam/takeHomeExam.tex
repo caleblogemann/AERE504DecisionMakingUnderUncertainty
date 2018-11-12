@@ -5,6 +5,10 @@
 \usepackage{Sum}
 \usepackage{Product}
 \usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric}
+\usetikzlibrary{arrows}
+\tikzstyle{vertex_style}=[circle, draw, inner sep=2pt, align=center]
 %\usepackage{jlcode}
 
 \begin{document}
@@ -136,6 +140,29 @@ Final Take-Home Exam
     action associated with the root node is $a_0$.
     Only show the observation branches that have a non-zero probability of
     occuring.
+    \begin{center}
+      \begin{tikzpicture}
+        \node[vertex_style](a) at (0,0) {
+          $s = \br{0, 1, 10}^T$ \\
+          $a_0$
+        };
+        \node[vertex_style](b) at (-5,-4) {
+          $s = \br{0, 0, 9}^T$ \\
+          $a_{+1}$
+        };
+        \node[vertex_style](c) at (0,-4) {
+          $s = \br{0, 1, 9}^T$ \\
+          $a_{+1}$
+        };
+        \node[vertex_style](d) at (5,-4) {
+          $s = \br{0, 2, 9}^T$ \\
+          $a_{0}$
+        };
+        \draw (a)--node[left]{$h=0$}(b);
+        \draw (a)--node[left]{$h=1$}(c);
+        \draw (a)--node[left]{$h=2$}(d);
+      \end{tikzpicture}
+    \end{center}
 
   \item[\#11]
     If we are using the fast informed bound (FIB) to approximate the optimal
