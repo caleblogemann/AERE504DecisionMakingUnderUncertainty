@@ -36,10 +36,11 @@ Final Take-Home Exam
   \item[\#3] % Done
     What is the dimensionality of our belief state?
 
-    The only unobservable part of the state space is the responsiveness $r$ of
-    aircraft $B$, so the dimensionality of the belief space is 1.
-    The belief state will be a single parameter $p$ which will represent the
-    probability that $r = 0$, and thus $1 - p$ is the probability that $r = 1$.
+    The belief space assigns a probability to each possible state.
+    In this case the dimensionality of the belief state would be the same as the
+    dimensionality of the state space, or 1 less if the probability of the final
+    state is computed implicitly.
+    So in this case 462 or 461.
 
   \item[\#4] % Done
     Assume our initial belief is uniform over all states with $t = 10$.
@@ -48,10 +49,11 @@ Final Take-Home Exam
 
     After the first observation we know $h$ and $t$ exactly, so the only
     unknown is $r$.
-    If we started with an uniform belief that would mean that intially we assign
-    each possibility probability $0.5$.
-    One observation won't change this probability to zero.
-    This means that the only component of the belief vector will be non-zero.
+    This means that there are only two possible states, $\br{0, h, t}^T$ and 
+    $\br{1, h, t}^T$.
+    Since we have started with a uniform initial belief, neither of these states
+    can be ruled out in one observation.
+    So there will be two non-zero components.
 
   \item[\#5] % Done
     Suppose we have a belief $b$ that assigns probability $1$ to state
@@ -109,7 +111,7 @@ Final Take-Home Exam
     respective states.
     In this case it is not possible for the values to be different.
     The model doesn't care if $A$ is h above or below $B$.
-    Is equally probable in both cases, also the cost of going up or going down
+    Collision is equally probable in both cases, also the cost of going up or going down
     is the same, so $U^*$ will be the same in both cases.
 
   \item[\#8] % Done
@@ -146,7 +148,7 @@ Final Take-Home Exam
     \]
     Thus this is not a unique choice.
 
-  \item[\#10]
+  \item[\#10] % Done
     Draw a two-step conditional plan from the state $\br{0, 1, 10}^T$ where the
     action associated with the root node is $a_0$.
     Only show the observation branches that have a non-zero probability of
@@ -291,8 +293,6 @@ Final Take-Home Exam
     through chance.
     Thus an exact Bayesian update would give the same probability, in this
     case $p = 0.5$ as an uniform intial belief was assumed.
-
-    An exact Bayesian update 
 
   \item[\#16] % Done
     Write a little paragraph about what you learned in this class.
