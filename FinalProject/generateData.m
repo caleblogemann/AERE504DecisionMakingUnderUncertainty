@@ -3,13 +3,13 @@ clear;
 close all;
 % Parameters
 nFareClasses = 3;
-capacity = 100;
+capacity = 80;
 classSizeMean = [10, 30, 60];
-classCancelRate = [0.05, 0.02, 0.03];
+classCancelRate = [0.1, 0.1, 0.1];
 totalTime = 1000;
 fareClassPrices = [300, 200, 100];
 
-nDataSets = 100000;
+nDataSets = 1000;
 fileName = 'test';
 
 
@@ -49,12 +49,12 @@ cancellations = arrayfun(@(i) classCancellations(i), 1:nFareClasses, 'UniformOut
 cancellations = horzcat(cancellations{:});
 
 % nCancellations(Data Set Index, Fare Class Index)
-nCancellations = cellfun(@(c) sum(ceil(c)), cancellations)
+nCancellations = cellfun(@(c) sum(ceil(c)), cancellations);
 % maxReward(Data Set Index)
-optimalNumberBookings = max(nArrivals - nCancellations, capacity*ones(size(nArrivals)))
-maxReward = nArrivals(:,1) - nCancellations(:,1)
+optimalNumberBookings = max(nArrivals - nCancellations, capacity*ones(size(nArrivals)));
+maxReward = nArrivals(:,1) - nCancellations(:,1);
 
-% dataSets{i} = [t, fareClassIndex, timeOfCancellation]
+% dataSets{i} = [t, fareClassIndex, timeOfCancellation];
 % [1, 1, 0] - adding passenger of class 1 at t = 1
 % [2, 3, 1] - adding passenger of class 3 at t = 2, will cancel at some later time
 % ...

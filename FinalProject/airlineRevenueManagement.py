@@ -14,6 +14,8 @@ from rl.memory import SequentialMemory
 from rl.core import Processor
 from rl.core import Env
 
+import matplotlib.pyplot as plt
+
 
 class armEnv(Env):
     """The abstract environment class that is used by all agents. This class has the exact
@@ -113,11 +115,25 @@ class armEnv(Env):
 
         if (self.done):
             # compute overbooking cost
-            reward += 0
+            overbooking_cost_multiplier = 2
+            if(sum(self.seats) > self.capacity):
+                number_to_bump = sum(self.seats) - self.capacity
+                # first bump high class
+                if(number_to_bump <= self.seats[0]):
+                    self.seats[0] -= number_to_bump
+                    reward -= overbooking_cost_multiplier*self.fareClassPrices[0]*number_to_bump
+                elif(number_to_bump > self.seats[0]):
+                    # first high class
+                    reward -= overbooking_cost_multiplier*self.fareClassPrices[0]*self.seats[0]
+                    number_to_bump -= self.seats[0]
+                    self.seats[0] = 0
+                    # second middle class
+                    reward -= overbooking_cost_multiplier*self.fareClassPrices[1]*number_to_bump
+                    self.seats[1] -= number_to_bump
 
-        self.observation = (self.time, self.nextClass, self.seats)
+        self.reward = reward
+        self.observation = (self.time, self.nextClass, self.seats, 1.0)
         return self.observation, reward, self.done, dict()
-
 
     def reset(self):
         """
@@ -149,7 +165,7 @@ class armEnv(Env):
 
         self.done = False
 
-        self.observation = (self.time, self.nextClass, self.seats)
+        self.observation = (self.time, self.nextClass, self.seats, 1.0)
         return self.observation
 
 
@@ -161,16 +177,17 @@ class armEnv(Env):
             mode (str): The mode to render with.
             close (bool): Close all open renderings.
         """
-        outfile = StringIO() if mode == 'ansi' else sys.stdout
-        outfile.write('State: ' + repr(self.observation) + ' Action: ' + repr(self.action) + '\n')
-        return outfile
+        # outfile = StringIO() if mode == 'ansi' else sys.stdout
+        # outfile.write('State: ' + repr(self.observation) + ' Action: ' + repr(self.action) + '\n')
+        if(self.action == 0):
+            print('Denied!!')
+        return print('State: ' + repr(self.observation) + ' Action: ' + repr(self.action) + ' Reward: ' + repr(self.reward))
 
     def close(self):
         """Override in your subclass to perform any necessary cleanup.
         Environments will automatically close() themselves when
         garbage collected or when the program exits.
         """
-        raise NotImplementedError()
 
 class armProcessor(Processor):
     """Abstract base class for implementing processors.
@@ -192,7 +209,7 @@ class armProcessor(Processor):
             Observation obtained by the environment processed
         """
 
-        return np.concatenate(([observation[0], observation[1]], observation[2]))
+        return np.concatenate(([observation[0], observation[1], observation[3]], observation[2]))
 
 
 nFareClasses = 3
@@ -203,7 +220,7 @@ nb_actions = env.action_space.n
 
 # Build model
 model = Sequential()
-model.add(Flatten(input_shape=(1,2+nFareClasses)))
+model.add(Flatten(input_shape=(1,3+nFareClasses)))
 model.add(Dense(16))
 model.add(Activation('relu'))
 model.add(Dense(16))
@@ -223,10 +240,15 @@ dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
-dqn.fit(env, nb_steps=100000)
+history = dqn.fit(env, nb_steps=80000, log_interval=8000)
 
 # After training is done, we save the final weights.
 dqn.save_weights('dqn_weights.h5f', overwrite=True)
 
 # Finally, evaluate our algorithm for 5 episodes.
 dqn.test(env, nb_episodes=5)
+plt.plot(history.history['episode_reward'])
+plt.title('Episode Reward During Training')
+plt.ylabel('Reward')
+plt.xlabel('Episode')
+plt.show()
