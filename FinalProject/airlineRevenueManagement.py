@@ -11,8 +11,11 @@ from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
+from rl.core import Processor
+from rl.core import Env
 
-class armEnv(gym.Env):
+
+class armEnv(Env):
     """The abstract environment class that is used by all agents. This class has the exact
     same API that OpenAI Gym uses so that integrating with it is trivial. In contrast to the
     OpenAI Gym implementation, this class only defines the abstract methods without any actual
@@ -41,14 +44,14 @@ class armEnv(gym.Env):
 
         self.nDataSets = mat['nDataSets']
         self.dataSets = mat['dataSets']
-        self.currentDataSetIndex = 0
-        self.currentDataSet = self.dataSets[0]
+        self.currentDataSetIndex = None
+        self.currentDataSet = None
 
         self.timeIndex = 0
-        self.nTimeIndices = self.currentDataSet.shape[0]
-        self.time = self.currentDataSet[0,0]
+        self.nTimeIndices = 0
+        self.time = 0
         # when reading in data subtract 1 so that zero indexed
-        self.nextClass = int(self.currentDataSet[0, 1] - 1)
+        self.nextClass = 0 
         self.seats = np.zeros(self.nFareClasses, dtype=int)
 
         self.cancellations = []
@@ -75,6 +78,8 @@ class armEnv(gym.Env):
             return None
 
         reward = 0
+
+        self.action = action
 
         # if accepted add to seats
         if(action == 1):
@@ -110,8 +115,8 @@ class armEnv(gym.Env):
             # compute overbooking cost
             reward += 0
 
-        observation = (self.time, self.nextClass, self.seats)
-        return observation, reward, self.done
+        self.observation = (self.time, self.nextClass, self.seats)
+        return self.observation, reward, self.done, dict()
 
 
     def reset(self):
@@ -121,10 +126,15 @@ class armEnv(gym.Env):
             observation (object): The initial observation of the space. Initial reward is assumed to be 0.
         """
 
-        if(self.currentDataSetIndex + 1 >= self.nDataSets):
-            print('No More Data Sets')
         # load next Data Set
-        self.currentDataSetIndex += 1
+        if (self.currentDataSetIndex == None):
+            self.currentDataSetIndex = 0
+        else:
+            self.currentDataSetIndex += 1
+
+        if(self.currentDataSetIndex >= self.nDataSets):
+            print('No More Data Sets')
+
         self.currentDataSet = self.dataSets[self.currentDataSetIndex]
 
         # reset variables
@@ -139,8 +149,8 @@ class armEnv(gym.Env):
 
         self.done = False
 
-        observation = (self.time, self.nextClass, self.seats)
-        return observation
+        self.observation = (self.time, self.nextClass, self.seats)
+        return self.observation
 
 
     def render(self, mode='human', close=False):
@@ -151,7 +161,9 @@ class armEnv(gym.Env):
             mode (str): The mode to render with.
             close (bool): Close all open renderings.
         """
-        raise NotImplementedError()
+        outfile = StringIO() if mode == 'ansi' else sys.stdout
+        outfile.write('State: ' + repr(self.observation) + ' Action: ' + repr(self.action) + '\n')
+        return outfile
 
     def close(self):
         """Override in your subclass to perform any necessary cleanup.
@@ -160,12 +172,38 @@ class armEnv(gym.Env):
         """
         raise NotImplementedError()
 
+class armProcessor(Processor):
+    """Abstract base class for implementing processors.
+    A processor acts as a coupling mechanism between an `Agent` and its `Env`. This can
+    be necessary if your agent has different requirements with respect to the form of the
+    observations, actions, and rewards of the environment. By implementing a custom processor,
+    you can effectively translate between the two without having to change the underlaying
+    implementation of the agent or environment.
+    Do not use this abstract base class directly but instead use one of the concrete implementations
+    or write your own.
+    """
+
+    def process_observation(self, observation):
+        """Processes the observation as obtained from the environment for use in an agent and
+        returns it.
+        # Arguments
+            observation (object): An observation as obtained by the environment
+        # Returns
+            Observation obtained by the environment processed
+        """
+
+        return np.concatenate(([observation[0], observation[1]], observation[2]))
+
+
+nFareClasses = 3
+arm_processor = armProcessor()
+
 env = armEnv("test.mat")
 nb_actions = env.action_space.n
 
 # Build model
 model = Sequential()
-model.add(Flatten(input_shape=(1,6)))
+model.add(Flatten(input_shape=(1,2+nFareClasses)))
 model.add(Dense(16))
 model.add(Activation('relu'))
 model.add(Dense(16))
@@ -178,15 +216,14 @@ model.add(Activation('linear'))
 
 memory = SequentialMemory(limit=50000, window_length=1)
 policy = BoltzmannQPolicy()
-dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory,
+dqn = DQNAgent(processor=arm_processor, model=model, nb_actions=nb_actions, memory=memory,
                target_model_update=1e-2, policy=policy)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
-pdb.set_trace()
-dqn.fit(env, nb_steps=50000)
+dqn.fit(env, nb_steps=100000)
 
 # After training is done, we save the final weights.
 dqn.save_weights('dqn_weights.h5f', overwrite=True)

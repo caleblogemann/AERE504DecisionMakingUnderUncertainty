@@ -48,6 +48,12 @@ classCancellations = @(j) arrayfun(@(i) binornd(1, classCancelRate(j), 1, nArriv
 cancellations = arrayfun(@(i) classCancellations(i), 1:nFareClasses, 'UniformOutput', false);
 cancellations = horzcat(cancellations{:});
 
+% nCancellations(Data Set Index, Fare Class Index)
+nCancellations = cellfun(@(c) sum(ceil(c)), cancellations)
+% maxReward(Data Set Index)
+optimalNumberBookings = max(nArrivals - nCancellations, capacity*ones(size(nArrivals)))
+maxReward = nArrivals(:,1) - nCancellations(:,1)
+
 % dataSets{i} = [t, fareClassIndex, timeOfCancellation]
 % [1, 1, 0] - adding passenger of class 1 at t = 1
 % [2, 3, 1] - adding passenger of class 3 at t = 2, will cancel at some later time
@@ -57,6 +63,8 @@ computeDataSet = @(j) cell2mat(arrayfun(@(i) [arrivalTimes{j, i}', i*ones(nArriv
 dataSets = arrayfun(@(j) computeDataSet(j), 1:nDataSets, 'UniformOutput', false);
 % sort by timestamp
 dataSets = cellfun(@sortrows, dataSets, 'UniformOutput', false);
+
+
 
 % saveall
 save(strcat(fileName, '.mat'))
