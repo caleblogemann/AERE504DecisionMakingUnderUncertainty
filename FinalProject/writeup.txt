@@ -1,0 +1,95 @@
+In order to train the agent, an environment was created to simulate the arrival
+of passengers of different classes wishing to book tickets for the flight.
+Each class of passengers was simulated as an independent Poisson process.
+Each test case can specify the expected number of passengers to arrive for a
+given class.
+In order to simulate their arrival an exponential distribution is sampled whose
+mean the ratio of total time to expected number of passengers.
+Sampling the exponential distribution gives a list of interarrival times, which
+can them be assembled into a list of timestamps at which passengers arrive.
+This process results in the number of passengers from each class being
+distributed according to a Poisson distribution.
+If a passenger arrives, then the cancellation probability will randomly set
+whether or not the passenger will cancel at a later time.
+The time at which the passenger cancels is uniformly distributed along the
+remaining time before the flight.
+Therefore each episode or flight will consist of a list of potential
+passengers, their class, their booking time, if they will cancel, and if so at
+what time they will cancel.
+
+Given this data the optimal reward possible can be computed.
+The optimal passenger acceptance will be accept all of the passengers from
+the highest fare class, and then the lower fare classes in descending order until
+the capacity is filled or all of the passengers have been accepted.
+The optimal reward is then just the fares applied to these passengers.
+The agent cannot achieve the optimal reward as it requires knowledge of future
+cancellations and future arrivals, however this can be a useful metric to gauge
+how well the agent is performing.
+
+Deep Q-Learning Implementation
+In order to learn a policy the agent will use Deep Q-Learning (DQL).
+We implemented DQL using the Keras and Keras-rl packages in Python.
+Keras is a high level neural network package for Python, and Keras-rl is a
+reinforcement learning package built on top of Keras.
+In Keras we created a neural network model.
+The neural network consists of an input layer, several hidden layers, and an
+output layer.
+The input layer contains one node for each variable in the state space.
+The output layer has one node per action.
+The hidden layers then connect the input and output layers with various
+machinery.
+The neural network is simulating the function Q needed for Q-learning.
+Based on the output of the neural network the agent can decide which action to
+take.
+The hidden layers in our model were an alternating series of dense and Relu
+activated layers.
+Each layer contained 16 nodes.
+
+In Keras-rl, we were then able to define a DQL agent that would use the model to
+learn the proper policy.
+We set the exploration policy of the agent to be a
+linear annealed epsilon-greedy policy.
+In an epsilon-greedy policy, the agent chooses a random action with
+probability epsilon or chooses greedily with probability $1-\epsilon$.
+In the linear annealed version of this policy the value of epsilon changes as
+the agent learns.
+In our case epsilon started at 1 and then linearly moved to 0.1.
+So the search policy started as purely randomly choosing actions and then ended
+choosing in a mostly greedy approach.
+The Keras-rl agent then interacts with the data generated previously to update
+the neural network according to the Q-learning algorithm.
+
+Results
+
+Several different test cases were used to train the model in order to test
+the robustness of our formulation.
+For each test case 24000 episodes or flights of data were generated.
+
+Overbooking Cost Cancellation Rate Fare Distribution Reward Fullness
+1.5              0                 1
+1.5              0                 2
+1.5              0                 3
+1.5              0.1               1
+1.5              0.1               2
+1.5              0.1               3
+1.5              0.2               1
+1.5              0.2               2
+1.5              0.2               3
+2.0              0                 1
+2.0              0                 2
+2.0              0                 3
+2.0              0.1               1
+2.0              0.1               2
+2.0              0.1               3
+2.0              0.2               1
+2.0              0.2               2
+2.0              0.2               3
+2.5              0                 1
+2.5              0                 2
+2.5              0                 3
+2.5              0.1               1
+2.5              0.1               2
+2.5              0.1               3
+2.5              0.2               1
+2.5              0.2               2
+2.5              0.2               3

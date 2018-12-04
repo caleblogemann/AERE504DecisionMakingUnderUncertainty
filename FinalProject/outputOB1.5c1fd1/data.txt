@@ -1,0 +1,3 @@
+Average Reward:0.9141632636955558
+Average Acceptance:0.8824775530938126
+Average Fullnes:0.9846088435374148
