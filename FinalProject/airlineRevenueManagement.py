@@ -113,7 +113,13 @@ for overbooking_cost_multiplier in obArray:
             plt.xlabel('Episode')
             plt.savefig(outputDir + '/train_fullness.png')
             plt.close()
-            # plt.show()
+
+            plt.plot(info_logger.seats)
+            plt.title('Seat Allocation')
+            plt.ylabel('Number of Seats per Class')
+            plt.xlabel('Episode')
+            plt.savefig(outputDir + '/seat_allocation.png')
+            plt.show()
 
             # After training is done, we save the final weights.
             dqn.save_weights('dqn_weights.h5f', overwrite=True)
